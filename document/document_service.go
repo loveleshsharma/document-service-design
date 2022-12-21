@@ -34,23 +34,23 @@ func (d *DocumentService) GetDocumentsList() []string {
 
 func (d *DocumentService) Create(documentName string, owner user.User) Document {
 	newDoc := newDocument(documentName, owner)
-	d.documentsMap[newDoc.GetId()] = newDoc
+	d.documentsMap[newDoc.getId()] = newDoc
 
 	return newDoc
 }
 
 func (d *DocumentService) AddContent(doc *Document, content string) {
-	doc.AddContent(content)
-	d.documentsMap[doc.GetId()] = *doc
+	doc.addContent(content)
+	d.documentsMap[doc.getId()] = *doc
 }
 
 func (d *DocumentService) Read(doc Document, reader user.User) (string, error) {
-	docOwner := doc.GetOwner()
+	docOwner := doc.getOwner()
 	if reader == docOwner {
-		return doc.GetContent(), nil
+		return doc.getContent(), nil
 	}
 
-	accessType, err := doc.GetAccessTypeByUser(reader)
+	accessType, err := doc.getAccessTypeByUser(reader)
 	if err != nil {
 		return "", err
 	}
@@ -59,14 +59,14 @@ func (d *DocumentService) Read(doc Document, reader user.User) (string, error) {
 		return "", ErrReadAccessNotFound
 	}
 
-	return doc.GetContent(), nil
+	return doc.getContent(), nil
 }
 
 func (d *DocumentService) GrantAccess(grantor, user user.User, doc Document, accessType AccessType) error {
-	docOwner := doc.GetOwner()
+	docOwner := doc.getOwner()
 
 	if grantor == docOwner {
-		doc.AddAccess(user, accessType)
+		doc.addAccess(user, accessType)
 		return nil
 	}
 
@@ -74,9 +74,9 @@ func (d *DocumentService) GrantAccess(grantor, user user.User, doc Document, acc
 }
 
 func (d *DocumentService) Delete(doc Document, user user.User) error {
-	docOwner := doc.GetOwner()
+	docOwner := doc.getOwner()
 	if user == docOwner {
-		d.delete(doc.GetId())
+		d.delete(doc.getId())
 		fmt.Printf("document: %s deleted successfully", doc.name)
 		return nil
 	}
